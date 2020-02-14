@@ -1,5 +1,6 @@
 package com.example.firebasedevicetodeviceupt;
 
+import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +13,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -23,11 +25,21 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Random;
 
 public class MyFirebaseMessagingService  extends FirebaseMessagingService {
+
     private final String ADMIN_CHANNEL_ID ="admin_channel";
     String SUBSCRIBE_TO= "userABC";
+
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+
         final Intent intent = new Intent(this, MainActivity.class);
+        if(remoteMessage.getData() != null) {
+            String desc = remoteMessage.getData().get("message");
+
+            Log.i("msss",desc);
+            intent.putExtra("message", desc+"Administrado por service");
+        }
+
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int notificationID = new Random().nextInt(3000);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -48,6 +60,7 @@ public class MyFirebaseMessagingService  extends FirebaseMessagingService {
                 .setSound(notificationSoundUri)
                 .setContentIntent(pendingIntent);
         notificationManager.notify(notificationID, notificationBuilder.build());
+
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void setupChannels(NotificationManager notificationManager){
